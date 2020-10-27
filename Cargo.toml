@@ -1,6 +1,6 @@
 [package]
 name = "magnum-opus"
-version = "0.3.2"
+version = "0.3.3"
 authors = ["Tad Hardesty <tad@platymuus.com>", "Sergey Duck <sergeypechnikov326@gmail.com>"]
 edition = "2018"
 description = "Safe Rust bindings for libopus"
@@ -13,6 +13,7 @@ categories = ["api-bindings", "encoding", "compression",
 repository = "https://github.com/DuckerMan/magnum-opus"
 documentation = "https://docs.rs/magnum-opus"
 
-[dependencies]
-opusic-sys = "0.3"
-libc = "0.2"
+[build-dependencies]
+vcpkg = "0.2"
+target_build_utils = "0.3"
+bindgen = "0.53"

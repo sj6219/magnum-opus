@@ -12,7 +12,8 @@
 //! the [libopus documentation](https://opus-codec.org/docs/opus_api-1.1.2/).
 #![warn(missing_docs)]
 
-extern crate opusic_sys as ffi;
+mod opus_ffi;
+use opus_ffi as ffi;
 
 
 use std::ffi::CStr;
