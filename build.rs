@@ -3,26 +3,44 @@ use std::{
     path::{Path, PathBuf},
 };
 
-fn find_package(name: &str) -> vcpkg::Library {
-    let mut cfg = vcpkg::Config::new();
-    cfg.emit_includes(true);
-    let mut res = cfg.find_package(name);
-    if res.is_err() {
-        let target = {
-            if cfg!(windows) {
-                ":x64-windows-static"
-            } else {
-                ""
-            }
-        };
-        std::process::Command::new("vcpkg")
-            .arg("install")
-            .arg(format!("{}{}", name, target))
-            .status()
-            .unwrap();
-        res = cfg.find_package(name);
+fn find_package(name: &str) -> Vec<PathBuf> {
+    let vcpkg_root = std::env::var("VCPKG_ROOT").unwrap();
+    let mut path: PathBuf = vcpkg_root.into();
+    let target_os = std::env::var("CARGO_CFG_TARGET_OS").unwrap();
+    let mut target_arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap();
+    if target_arch == "x86_64" {
+        target_arch = "x64".to_owned();
+    } else if target_arch == "aarch64" {
+        target_arch = "arm64".to_owned();
+    } else {
+        target_arch = "arm".to_owned();
     }
-    res.unwrap()
+    let target = if target_os == "macos" {
+        "x64-osx".to_owned()
+    } else if target_os == "windows" {
+        "x64-windows-static".to_owned()
+    } else if target_os == "android" {
+        format!("{}-android-static", target_arch)
+    } else {
+        "x64-linux".to_owned()
+    };
+    println!("cargo:info={}", target);
+    path.push("installed");
+    path.push(target);
+    println!(
+        "{}",
+        format!("cargo:rustc-link-lib={}", name.trim_start_matches("lib"))
+    );
+    println!(
+        "{}",
+        format!(
+            "cargo:rustc-link-search={}",
+            path.join("lib").to_str().unwrap()
+        )
+    );
+    let include = path.join("include");
+    println!("{}", format!("cargo:include={}", include.to_str().unwrap()));
+    vec![include]
 }
 
 fn generate_bindings(ffi_header: &Path, include_paths: &[PathBuf], ffi_rs: &Path) {
@@ -50,7 +68,7 @@ fn generate_bindings(ffi_header: &Path, include_paths: &[PathBuf], ffi_rs: &Path
 }
 
 fn gen_opus() {
-    let includes = find_package("opus").include_paths;
+    let includes = find_package("opus");
     let src_dir = env::var_os("CARGO_MANIFEST_DIR").unwrap();
     let src_dir = Path::new(&src_dir);
     let out_dir = env::var_os("OUT_DIR").unwrap();
