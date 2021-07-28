@@ -1,6 +1,6 @@
 [package]
 name = "magnum-opus"
-version = "0.3.4-1"
+version = "0.3.4-2"
 authors = ["Tad Hardesty <tad@platymuus.com>", "Sergey Duck <sergeypechnikov326@gmail.com>"]
 edition = "2018"
 description = "Safe Rust bindings for libopus"
@@ -15,4 +15,4 @@ documentation = "https://docs.rs/magnum-opus"
 
 [build-dependencies]
 target_build_utils = "0.3"
-bindgen = "0.53"
+bindgen = "0.59"
