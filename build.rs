@@ -8,20 +8,25 @@ fn find_package(name: &str) -> Vec<PathBuf> {
     let mut path: PathBuf = vcpkg_root.into();
     let target_os = std::env::var("CARGO_CFG_TARGET_OS").unwrap();
     let mut target_arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap();
-    if target_arch == "x86_64" {
-        target_arch = "x64".to_owned();
-    } else if target_arch == "aarch64" {
-        target_arch = "arm64".to_owned();
-    } else {
-        target_arch = "arm".to_owned();
+    if target_arch == "x86_64" {    
+        target_arch = "x64".to_owned();    
+    } else if target_arch == "i686" {    
+        target_arch = "x86".to_owned();    
+    } else if target_arch == "aarch64" {    
+        target_arch = "arm64".to_owned();    
+    } else {    
+        target_arch = "arm".to_owned();    
+    }    
+    let mut target = if target_os == "macos" {    
+        "x64-osx".to_owned()    
+    } else if target_os == "windows" {    
+        "x64-windows-static".to_owned()    
+    } else {    
+        format!("{}-{}", target_arch, target_os)    
+    };    
+    if target_arch == "i686" {    
+        target = target.replace("x64", "x86");    
     }
-    let target = if target_os == "macos" {
-        "x64-osx".to_owned()
-    } else if target_os == "windows" {
-        "x64-windows-static".to_owned()
-    } else {
-        format!("{}-{}", target_arch, target_os)
-    };
     println!("cargo:info={}", target);
     path.push("installed");
     path.push(target);
