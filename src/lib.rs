@@ -40,7 +40,10 @@ const OPUS_SET_INBAND_FEC: c_int = 4012; // in i32
 const OPUS_GET_INBAND_FEC: c_int = 4013; // out *i32
 const OPUS_SET_PACKET_LOSS_PERC: c_int = 4014; // in i32
 const OPUS_GET_PACKET_LOSS_PERC: c_int = 4015; // out *i32
+const OPUS_SET_DTX_REQUEST: c_int = 4016;
+const OPUS_GET_DTX_REQUEST: c_int = 4017;
 const OPUS_GET_LOOKAHEAD: c_int = 4027; // out *i32
+const OPUS_GET_IN_DTX_REQUEST: c_int = 4049;
 // Decoder CTLs
 const OPUS_SET_GAIN: c_int = 4034; // in i32
 const OPUS_GET_GAIN: c_int = 4045; // out *i32
@@ -370,12 +373,35 @@ impl Encoder {
 		Ok(value)
 	}
 
+	/// Configures the encoder's use of discontinuous transmission (DTX).
+	pub fn set_dtx(&mut self, value: bool) -> Result<()> {
+		let value: i32 = if value { 1 } else { 0 };
+		enc_ctl!(self, OPUS_SET_DTX_REQUEST, value);
+		Ok(())
+	}
+
+	/// Gets encoder's configured use of discontinuous transmission. 
+	pub fn get_dtx(&mut self) -> Result<bool> {
+		let mut value: i32 = 0;
+		enc_ctl!(self, OPUS_GET_DTX_REQUEST, &mut value);
+		Ok(value != 0)
+	}
+
 	/// Gets the total samples of delay added by the entire codec.
 	pub fn get_lookahead(&mut self) -> Result<i32> {
 		let mut value: i32 = 0;
 		enc_ctl!(self, OPUS_GET_LOOKAHEAD, &mut value);
 		Ok(value)
 	}
+
+	/// Gets the DTX state of the encoder.
+	/// Returns whether the last encoded frame was either a comfort noise update during DTX or not encoded because of DTX.
+	pub fn get_in_dtx(&mut self) -> Result<bool> {
+		let mut value: i32 = 0;
+		enc_ctl!(self, OPUS_GET_IN_DTX_REQUEST, &mut value);
+		Ok(value != 0)
+	}
+
 
 	// TODO: Encoder-specific CTLs
 }
