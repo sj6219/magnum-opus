@@ -11,8 +11,10 @@ fn link_vcpkg(mut path: PathBuf, name: &str) -> PathBuf {
     } else if target_arch == "aarch64" {
         target_arch = "arm64".to_owned();
     }
-    let mut target = if target_os == "macos" {
+    let mut target = if target_os == "macos" && target_arch == "x64" {
         "x64-osx".to_owned()
+    } else if target_os == "macos" && target_arch == "arm64" {
+        "arm64-osx".to_owned()
     } else if target_os == "windows" {
         "x64-windows-static".to_owned()
     } else {
