@@ -4,6 +4,7 @@ use std::{
 };
 
 fn link_vcpkg(mut path: PathBuf, name: &str) -> PathBuf {
+    let target = std::env::var("TARGET").unwrap();
     let target_os = std::env::var("CARGO_CFG_TARGET_OS").unwrap();
     let mut target_arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap();
     if target_arch == "x86_64" {
@@ -17,6 +18,8 @@ fn link_vcpkg(mut path: PathBuf, name: &str) -> PathBuf {
     } else if target_os == "windows" {
         //"x64-windows-static".to_owned()
         format!("{}-windows-static", target_arch) 
+    } else if target == "aarch64-apple-ios-sim" {
+        format!("{}-iphonesimulator", target_arch)
     } else {
         format!("{}-{}", target_arch, target_os)
     };
